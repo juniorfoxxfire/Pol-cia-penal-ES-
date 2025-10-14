@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ESTUDOS ÁREA POLICIAL (PC,PP,IASES) — Simulado Polícia Penal ES</title>
+<style>
+  :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial; color:#111}
+  body{margin:0;background:#f6f7fb;display:flex;align-items:flex-start;justify-content:center;padding:20px}
+  .card{width:100%;max-width:980px;background:#fff;border-radius:12px;box-shadow:0 6px 30px rgba(14,21,47,0.08);padding:20px}
+  header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+  h1{font-size:18px;margin:0}
+  .meta{font-size:13px;color:#4b5563}
+  .progress{height:10px;background:#e6e9f2;border-radius:999px;overflow:hidden;margin-top:8px}
+  .progress > b{display:block;height:100%;background:linear-gradient(90deg,#2b7cff,#6dd5ed);width:0%}
+  main{min-height:320px}
+  .qnum{font-weight:600;margin-bottom:6px}
+  .question{font-size:16px;margin:10px 0 18px}
+  .choices{display:flex;flex-direction:column;gap:8px}
+  .choice{background:#f8fafc;border:1px solid #eef2ff;padding:10px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:10px}
+  .choice input{accent-color:#2b7cff}
+  .nav{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:18px}
+  .btn{padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:#2b7cff;color:#fff}
+  .btn-ghost{background:transparent;border:1px solid #dde7ff;color:#102a43}
+  .footer{margin-top:14px;font-size:13px;color:#475569;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  .result{padding:12px;background:#f1f5f9;border-radius:10px;margin-top:12px}
+  .correct{background:#ecfdf5;border:1px solid #10b981;color:#065f46;padding:6px 8px;border-radius:6px}
+  .wrong{background:#fff1f2;border:1px solid #f43f5e;color:#9f1239;padding:6px 8px;border-radius:6px}
+  pre{background:#0b1220;color:#dbeafe;padding:8px;border-radius:6px;overflow:auto}
+  .small{font-size:13px;color:#64748b}
+  .gabarito-area{margin-top:10px;display:flex;gap:8px;align-items:center}
+  .textarea{width:100%;min-height:60px;border:1px dashed #dbeafe;padding:8px;border-radius:8px}
+  @media (max-width:520px){.card{padding:14px}}
+</style>
+</head>
+<body>
+<div class="card" role="application" aria-label="Simulado Polícia Penal ES - Interativo">
+  <header>
+    <div>
+      <h1>ESTUDOS ÁREA POLICIAL (PC,PP,IASES)</h1>
+      <div class="meta">Simulado Polícia Penal ES — 60 questões • Uma questão por vez</div>
+      <div class="progress" aria-hidden="true"><b id="bar"></b></div>
+    </div>
+    <div style="text-align:right">
+      <div class="small">Abra este arquivo em qualquer navegador (Android / Notebook).</div>
+      <div class="small">Arquivo único .html — pronto para compartilhar.</div>
+    </div>
+  </header>
+
+  <main id="app">
+    <div id="qslot"></div>
+
+    <div class="nav">
+      <div style="display:flex;gap:8px">
+        <button id="prevBtn" class="btn btn-ghost" onclick="prevQ()">Anterior</button>
+        <button id="nextBtn" class="btn btn-primary" onclick="nextQ()">Próxima</button>
+      </div>
+      <div style="text-align:right">
+        <div class="small" id="status">Questão <span id="cur">1</span> / <span id="total">60</span></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>
+        <button class="btn btn-ghost" onclick="exportAnswers()">Exportar respostas (JSON)</button>
+        <button class="btn btn-ghost" onclick="importAnswers()">Importar respostas (JSON)</button>
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="small">Gabarito: integrado ao arquivo.</span>
+        <button id="corrigirBtn" class="btn btn-primary" style="display:none" onclick="corrigir()">Corrigir</button>
+      </div>
+    </div>
+
+    <div id="resultArea"></div>
+  </main>
+</div>
+
+<script>
+// Perguntas (retiradas do PDF enviado)
+// Cada item: q = texto da questão; choices = array de alternativas
+const questoes = [
+{ q: "1 - Em: \"Se você apenas exportar commodities para a China, nunca conseguirá esse efeito positivo do emprego industrial na sociedade, dado que você não precisará de tanta mão de obra remunerada e de alta produtividade\", conclui. Pode ser substituída, sem alteração de sentido, a expressão destacada no texto por:", choices: ["A) Ainda que.", "B) Desde que.", "C) Porquanto.", "D) Apesar de que."] },
+{ q: "2 - Em: \"...o agrião se destaca pela sua riqueza nutritiva. O vegetal de folhas escuras...\" O recurso utilizado no trecho acima é identificado como:", choices: ["A) Zeugma.", "B) Hipálage.", "C) Anáfora.", "D) Conotação."] },
+{ q: "3 – O que originou o termo \"gladiador\" na sociedade romana?", choices: ["A) O tipo de entretenimento que ofereciam.", "B) A arma utilizada pelos lutadores.", "C) A arena onde ocorriam as lutas.", "D) O nome do principal palco de combates."] },
+{ q: "4 - Qual era a realidade da vida dos gladiadores na Roma antiga, segundo o texto?", choices: ["A) Todos os gladiadores eram ricos e escolhiam a profissão por fama.", "B) Gladiadores raramente se tornavam famosos, mas tinham longa expectativa de vida.", "C) Gladiadores tinham uma vida curta e lutavam por necessidade.", "D) A profissão de gladiador era sempre voluntária e trazia luxo para todos os participantes."] },
+{ q: "5 - Assinale a sequência correta sobre posição dos pronomes átonos: (Confira as orações no enunciado original).", choices: ["A) I > II > III > I > III.", "B) III > I > II > III > II.", "C) III > II > I > III > I.", "D) II > I > III > II > III."] },
+{ q: "6 - Em quais afirmativas há ortografia incorreta (II, III, IV, V...)?", choices: ["A) II, III e V.", "B) I, IV e V.", "C) I, III e IV.", "D) II e IV."] },
+{ q: "7 - Quanto aos termos em negrito nas músicas citadas, assinale a alternativa correta quanto à função sintática:", choices: ["A) \"Todo dia ela faz tudo sempre igual\" - objeto indireto.", "B) \"Me sorri um sorriso pontual\" - objeto indireto.", "C) \"É um lago negro o seu olhar\" - sujeito.", "D) \"E morrer no mar (no mar)\" - complemento nominal."] },
+{ q: "8 - Marque a função da linguagem que predomina: \"O brasileiro não lê, mas vez ou outra aparecem best-sellers por aqui\".", choices: ["A) Referencial.", "B) Poética.", "C) Apelativa.", "D) Fática."] },
+{ q: "9 - Qual frase mostra perfeita adequação vocabular?", choices: ["A) No deserto, a alta temperatura é visível.", "B) Graças aos medicamentos, curou o resfriado.", "C) Nas provas, esperava enfrentar algumas facilidades.", "D) Foi elogiado por causa do ato solidário que cometeu."] },
+{ q: "10 - Complete as lacunas segundo regência: \"Durante o período... políticas públicas voltadas.......saúde... para.........a população... O acesso......saúde... fácil acesso.......médicos...\" (escolha a alternativa correta).", choices: ["A) A, a qual, à, aos", "B) A, quais, à, os", "C) Para a, as quais, à, aos", "D) Para a, as quais, a, os"] },
+
+{ q: "11 - João comprou 2 fones e 3 carregadores por R$130; Perla comprou 3 fones e 2 carregadores por R$145. Quanto custa cada item?", choices: ["A) Cada fone R$40 e cada carregador R$25.", "B) Cada fone R$30 e cada carregador R$15.", "C) Cada fone R$25 e cada carregador R$20.", "D) Cada fone R$35 e cada carregador R$20."] },
+{ q: "12 - Ana tirou 6,2; 9,3; 7,4 — usando desvio padrão como pontuação extra, quanto ela ganhou? (escolha a alternativa)", choices: ["A) 1,7 pontos.", "B) 1,3 pontos.", "C) 2,1 pontos.", "D) 1 ponto."] },
+{ q: "13 - Teclado virtual com 15 símbolos para senha de 6 dígitos. Quantas senhas diferentes?", choices: ["A) 7.200", "B) 4.580", "C) 6.300", "D) 5.005"] },
+{ q: "14 - Investimento total R$600k em A e B; no 1º sem A recebeu 3/5 da parte anual dela e B recebeu 2/3 da parte anual dela; soma no 1º sem = R$376k. Quanto foi o investimento em A no 2º semestre?", choices: ["A) R$80 mil.", "B) R$144 mil.", "C) R$160 mil.", "D) R$216 mil."] },
+{ q: "15 - Compraram 40 licenças: tipo A R$120; tipo B R$150; total R$5.700. Quantas licenças tipo B?", choices: ["A) 10.", "B) 15.", "C) 20.", "D) 30."] },
+{ q: "16 - Resolva 2x + 5 = 47; qual a idade de Bernardo?", choices: ["A) 16 anos.", "B) 24 anos.", "C) 18 anos.", "D) 21 anos."] },
+{ q: "17 - Afirmação: Se os livros foram catalogados, então eles já foram distribuídos nas estantes. Negação lógica correta é:", choices: ["A) Os livros foram catalogados e não foram distribuídos nas estantes.", "B) Os livros não foram catalogados e não foram distribuídos nas estantes.", "C) Os livros foram catalogados ou foram distribuídos nas estantes.", "D) Se os livros não foram catalogados, então eles não foram distribuídos nas estantes."] },
+{ q: "18 - Sequência: P,R,P,R,E,V repetindo. Determine as letras na 2025ª e 2026ª posições.", choices: ["A) R, E.", "B) E, V.", "C) P, R.", "D) R, P."] },
+{ q: "19 - André, José, Luzia, Maria e Sônia com idades diferentes: André = Maria +1; Maria = José +2; José = Sônia -1; Luzia = José -2. Assinale a alternativa correta:", choices: ["A) Maria é a mais velha.", "B) André é cinco anos mais velho que Luzia.", "C) Sônia é a mais nova.", "D) André e José têm um ano de diferença."] },
+{ q: "20 - Todas as salas do 1º andar do bloco C têm ar-condicionado, entretanto nem todas as salas do bloco C têm ar-condicionado. Conclui-se:", choices: ["A) Todas as salas do 1º andar têm ar-condicionado.", "B) Pelo menos uma sala que não está no 1º andar tem ar-condicionado.", "C) Nenhuma outra sala tem ar-condicionado.", "D) Pelo menos uma sala do bloco C não está no primeiro andar."] },
+
+{ q: "21 - Agenda 2030 da ONU tem por tema:", choices: ["A) “Transformando o Nosso Mundo: A Agenda 2030 para o Desenvolvimento Ecoglobal”", "B) “Transformando o Nosso Mundo: A Agenda 2030 para o em paz”", "C) “Transformando o Nosso Mundo: A Agenda 2030 para o Desenvolvimento Sustentável”", "D) “Transformando o Nosso Mundo: A Agenda 2030 para o Desenvolvimento do ser humano”"] },
+{ q: "22 - Governo do Estado anunciou em 2025 a contratação de:", choices: ["A) até 4,8 mil câmeras corporais para as forças de segurança do ES.", "B) até 4,8 mil totens para as forças de segurança do ES.", "C) até 4,8 mil novas viaturas.", "D) até 4,8 mil armas de fogo e não letais."] },
+{ q: "23 - As forças de segurança do Espírito Santo alcançaram a marca de 400 prisões realizadas:", choices: ["A) com uso de tecnologia de reconhecimento facial.", "B) com uso de drones.", "C) com uso de totens eletrônicos e radares.", "D) com uso de mega operações de blitz."] },
+{ q: "24 - Em 2025 Espírito Santo passou a dispor de monitoramento 24 horas de:", choices: ["A) incêndios em vegetação em todo o território capixaba.", "B) do mar, principalmente em pontos turísticos.", "C) do mar, principalmente em pontos turísticos. (repetido)", "D) do mar e das rodovias (cerco inteligente)."] },
+{ q: "25 - Em setembro de 2025 o sistema Aquaviário recebeu sua quinta embarcação. A alternativa correta é:", choices: ["A) FRADINHO — capacidade ~90 passageiros e trecho Prainha (Vila Velha) ↔ Praça do Papa (Vitória).", "B) MESTRE ÁLVARO — capacidade ~90 passageiros e trecho Prainha (Vila Velha) ↔ Praça do Papa (Vitória).", "C) MESTRE ÁLVARO — operará no trecho entre a Serra e Vitória.", "D) QUEIMADOS — capacidade ~10 passageiros e trecho Cariacica ↔ Serra."] },
+{ q: "26 - Classifique: Word, Excel, Jogos, Navegadores; Sistemas Operacionais, Interface e Rede; Antivírus e Compactadores.", choices: ["A) básico, utilitário e aplicativo.", "B) básico, aplicativo e utilitário.", "C) aplicativo, básico e utilitário.", "D) aplicativo, utilitário e básico."] },
+{ q: "27 - Usuário formatou um parágrafo no MS-Word e aplicou: Centralizado, negrito e itálico (nessa ordem). Número de palavras em negrito e em itálico, respectivamente:", choices: ["A) 0 e 4.", "B) 0 e 2.", "C) 2 e 2.", "D) 2 e 4."] },
+{ q: "28 - Sobre Tabelas Dinâmicas no Excel 2019: marque V ou F para as afirmativas listadas (sequência correta):", choices: ["A) V, V, V, V.", "B) V, F, F, V.", "C) F, F, V, V.", "D) F, V, V, V."] },
+{ q: "29 - Atalho no Mozilla Firefox (português) para abrir 'Informações da página' rapidamente:", choices: ["A) Ctrl + I", "B) Ctrl + Shift + J", "C) Ctrl + U", "D) Ctrl + Shift + M"] },
+{ q: "30 - Principal e correta função de um firewall em uma rede:", choices: ["A) Centralizar e criptografar todas as informações em um nó.", "B) Controlar o tráfego entre redes, permitindo ou bloqueando conexões segundo regras.", "C) Detectar e remover vírus automaticamente em toda a rede.", "D) Acelerar a velocidade de conexão junto com aplicativos aceleradores."] },
+
+{ q: "31 - A ética distingue-se da moral porque:", choices: ["A) Ética = conjunto de normas imutáveis; moral = mutável.", "B) Moral = reflexão crítica sobre valores universais; ética = costume social.", "C) Ética busca compreender princípios da conduta; moral = conjunto de regras praticadas.", "D) Ambas são sinônimos."] },
+{ q: "32 - Tratar cidadãos com cortesia e respeito é cumprimento direto do dever de:", choices: ["A) Legalidade.", "B) Urbanidade.", "C) Eficiência.", "D) Publicidade."] },
+{ q: "33 - No Código de Ética da PPES (IN 004/2024) — NÃO é vedado ao servidor:", choices: ["A) Comentar com terceiros assuntos internos que antecipem decisão.", "B) Conceder entrevistas apenas quando autorizado.", "C) Utilizar recursos para interesses particulares.", "D) Divulgar informações sigilosas obtidas por razão do cargo."] },
+{ q: "34 - Segundo Decreto nº 1.595-R/2005 - princípios fundamentais a serem observados pelos servidores civis do Poder Executivo:", choices: ["A) interesse público, integridade, imparcialidade, transparência, honestidade, responsabilidade, respeito, competência.", "B) legalidade, impessoalidade, moralidade, publicidade, eficiência.", "C) impessoalidade, moralidade, publicidade, eficiência, legalidade.", "D) impessoalidade, moralidade, publicidade, eficiência, legalidade, interesse público, integridade, imparcialidade, transparência, honestidade, responsabilidade, respeito, competência."] },
+{ q: "35 - Funcionário aceitou consultoria para particular com interesse atingido por ação/omissão de seu cargo. Segundo Lei de Improbidade Administrativa, esse ato:", choices: ["A) Não tem previsão legal como improbidade.", "B) Será improbidade se doloso.", "C) Será improbidade independentemente do dolo.", "D) Será improbidade se doloso, gerar enriquecimento e causar prejuízo."] },
+{ q: "36 - Indicação presidencial: Ministro da Defesa; Ministro do STF; Ministro do STJ — pode recair sobre brasileiros naturalizados?", choices: ["A) Indicação para STF e STJ pode recair sobre naturalizados.", "B) Indicação para Defesa e STJ pode recair sobre naturalizados.", "C) Indicação para STF e STJ não pode recair sobre naturalizados.", "D) Indicação para STF e Defesa não pode recair sobre naturalizados."] },
+{ q: "37 - Art. 37 CF/88 — quais situações estão de acordo?:", choices: ["A) I, II, III e IV.", "B) Apenas II e IV.", "C) Apenas I, II e III.", "D) Apenas I, III e IV."] },
+{ q: "38 - Acerca dos atos do poder público, assinale a opção correta:", choices: ["A) Convalidação implica refazimento do ato; efeitos retroativos nos nulos; anuláveis não retroagem.", "B) Atos compostos resultam da manifestação de dois ou mais órgãos, praticando-se dois atos: principal e acessório.", "C) Atos complexos resultam de um único órgão colegiado com vontade heterogênea; não há identidade de conteúdo nem de fins.", "D) Atos normativos não são passíveis de revogação."] },
+{ q: "39 - Quanto à finalidade, é caracterizado como vício do ato administrativo:", choices: ["A) a função de fato.", "B) a inexistência de motivos.", "C) o desvio de poder.", "D) o excesso de poder."] },
+{ q: "40 - Exemplo de ato de improbidade administrativa que causa prejuízo ao erário:", choices: ["A) Perceber vantagem econômica para intermediar liberação ou aplicação de verba pública.", "B) Praticar ato visando fim proibido.", "C) Conceder benefício administrativo sem formalidades legais.", "D) Perceber vantagem para facilitar alienação de bem por preço inferior ao mercado."] },
+
+{ q: "41 - A respeito da responsabilidade civil extracontratual da Administração, assinale a alternativa correta.", choices: ["A) Direito Brasileiro usa teoria da culpa integral.", "B) Direito Brasileiro adota teoria da culpa anônima.", "C) Administração não pode ser eximida por caso fortuito ou força maior.", "D) Mesmo que conduta estatal seja lícita, haverá responsabilidade quando comprovada a ilicitude do dano."] },
+{ q: "42 - Nos crimes que envolvem violência doméstica e familiar contra mulher, criança, idoso ou PCD, marque a opção correta:", choices: ["A) O inquérito correrá sob sigilo.", "B) Autoridade policial deverá notificar o órgão ministerial responsável.", "C) Terá prioridade a realização de exame de corpo de delito.", "D) A autoridade policial nomeará curador para a vítima."] },
+{ q: "43 - O CPP (arts. 4º a 23) prevê algum 'recurso' relativo ao inquérito policial?", choices: ["A) Sim, ao Judiciário contra despacho que indeferir produção de prova.", "B) Sim, ao Ministério Público contra despacho que indeferir produção de prova.", "C) Sim, ao chefe de Polícia contra indeferimento de abertura.", "D) Sim, ao Judiciário se não observadas formalidades da prova."] },
+{ q: "44 - Nos termos do art. 302 do CPP, considera-se em flagrante delito quem:", choices: ["A) cometeu a infração nas últimas 24h.", "B) é imediatamente reconhecido como autor pela vítima.", "C) é perseguido logo após por autoridade, ofendido ou qualquer pessoa, em situação que faça presumir ser autor.", "D) é avistado com instrumentos, armas, objetos ou papéis."] },
+{ q: "45 - Comete falta grave o condenado à pena privativa de liberdade que, EXCETO:", choices: ["A) tiver em sua posse aparelho que permita comunicação com outros presos.", "B) provocar acidente de trabalho.", "C) incitar movimento para subverter ordem ou disciplina.", "D) praticar fato previsto como crime culposo."] },
+{ q: "46 - Quanto à Lei de Execução Penal, assinale a alternativa correta.", choices: ["A) Remição por estudo só se admite presencial.", "B) Permissão de saída não se aplica ao preso provisório.", "C) Se praticada falta disciplinar, procedimento instaura-se com direito de defesa e vedado isolamento preventivo.", "D) Saída temporária exige 1/6 para primário e 1/4 para reincidente."] },
+{ q: "47 - Lei 13.869/2019 — abuso de autoridade: marque a opção correta.", choices: ["A) Sentença penal que reconhecer ato em estado de necessidade não faz coisa julgada em âmbito cível.", "B) Imunidade parlamentar impede ser sujeito ativo de abuso de autoridade, salvo funções das mesas diretoras.", "C) Condenação pode estabelecer perda do cargo se houver reincidência e motivação.", "D) Não se admite ação penal privada para crimes de abuso de autoridade."] },
+{ q: "48 - Sobre Lei nº 13.869/2019 (Abuso de Autoridade), está correto o que se afirma em:", choices: ["A) III apenas.", "B) I e II apenas.", "C) I apenas.", "D) I, II e III."] },
+{ q: "49 - Art. 144 CF/88 — Analise as afirmativas e marque a correta (competências):", choices: ["A) Polícias civis apuram infrações contra ordem política e social ou interesses da União.", "B) Polícia Rodoviária Federal exerce polícia marítima, aeroportuária e de fronteiras.", "C) Estados deverão constituir guardas municipais para proteção de bens estaduais.", "D) Segurança viária compete, no âmbito dos Estados/DF/Municípios, aos respectivos órgãos executivos de trânsito."] },
+{ q: "50 - Lei nº 9.455/1997 — crimes de tortura. Assinale a alternativa incorreta.", choices: ["A) Constitui crime de tortura submeter alguém sob guarda a intenso sofrimento para castigo.", "B) Responde por tortura quem se omite quando tinha dever de evitá-las.", "C) Pena aumentada se crime cometido contra criança, gestante, PCD, adolescente ou maior de 60 anos.", "D) Constitui tortura constranger alguém com violência para obter informação, declaração ou confissão."] },
+
+{ q: "51 - Lei nº 12.850/13 (Organizações Criminosas) — Colaboração Premiada: dentre exigências legais NÃO está prevista:", choices: ["A) Identificação de coautores e partícipes.", "B) Recuperação parcial do produto das infrações.", "C) Revelação da estrutura hierárquica da organização.", "D) Localização de eventual vítima, mesmo que sua integridade não tenha sido preservada."] },
+{ q: "52 - Regras de Mandela — requisitos principais para inspeções em estabelecimentos prisionais:", choices: ["A) Inspeções com comunicação prévia à direção do presídio.", "B) Inspeções conduzidas exclusivamente por órgãos independentes.", "C) Inspeções por inspetores qualificados, incluindo profissionais de saúde.", "D) Inspeções rápidas que não interfiram nas rotinas dos presos."] },
+{ q: "53 - É um direito expresso na Declaração Universal dos Direitos Humanos:", choices: ["A) instituição do júri com sigilo de votações.", "B) inexistência de pena perpétua.", "C) submissão de preso a tribunal de exceção.", "D) direito a não ser preso, detido ou exilado arbitrariamente."] },
+{ q: "54 - Caso hipotético: induzir criança a automutilar-se e ela morrer. Matífanis, que induziu Kiitemis, responde por:", choices: ["A) Lesão corporal dolosa com resultado morte.", "B) Homicídio.", "C) Suicídio.", "D) Lesão corporal culposa com resultado morte."] },
+{ q: "55 - Euclides, chefe que soube de Mário vendendo dados sigilosos, deixou de levar o caso ao superiores. A conduta de Euclides é:", choices: ["A) Corrupção passiva.", "B) Nenhum crime.", "C) Prevaricação.", "D) Condescendência criminosa."] },
+{ q: "56 - Funcionário público que solicitar/receber vantagem indevida incorrerá no tipo penal:", choices: ["A) Corrupção ativa.", "B) Peculato.", "C) Corrupção passiva.", "D) Condescendência criminosa."] },
+{ q: "57 - LEI COMPLEMENTAR Nº 1.061/18-dez-2023 — Art.3º: a PPES deve observar, ainda, na sua atuação:", choices: ["A) a promoção dos direitos humanos;", "B) a incitação e mediação de conflitos;", "C) o uso desmedido da força;", "D) atendimento ao público com presteza, probidade, urbanidade, atenção, interesse, respeito, indiscrição, moderação e objetividade;"] },
+{ q: "58 - LEI COMPLEMENTAR Nº 46 — Assinale a opção correta:", choices: ["A) O servidor responde civil, penal e objetivamente pelo exercício irregular.", "B) Responsabilidade administrativa resulta apenas de omissão.", "C) Cominações civis, penais e administrativas não poderão cumular-se.", "D) Responsabilidade penal abrange crimes e contravenções imputados ao servidor."] },
+{ q: "59 - LEI COMPLEMENTAR Nº 1.061/18-dez-2023 — Símbolos institucionais da PPES:", choices: ["A) hino, bandeira, brasão e distintivo, válidos em todo território nacional.", "B) hino, bandeira, brasão, armas e distintivo.", "C) hino, bandeira, brasão, armas, uniforme e distintivo.", "D) bandeira, brasão, armas, uniforme, viaturas e distintivo."] },
+{ q: "60 - Sistema Interamericano de Direitos Humanos — assinale a alternativa correta:", choices: ["A) Sentenças da Corte IDH são vinculantes, definitivas e inapeláveis.", "B) Comissão IDH tem apenas competências políticas, como visitas in loco e relatórios.", "C) Corte IDH atende petições dos Estados, indivíduos ou organizações.", "D) Supervisão de sentenças condenatórias é competência da Comissão IDH."] }
+];
+
+// Gabarito fornecido pelo usuário (embutido)
+const gabarito = ["C","A","B","C","C","B","D","A","B","A","D","B","D","A","B","D","A","C","B","D","C","A","A","A","B","C","A","D","A","B","C","B","B","D","B","D","C","B","C","C","B","C","C","C","D","B","B","A","D","C","D","C","C","C","A","C","C","C","A","D"];
+
+let respostas = Array(questoes.length).fill(null);
+let cur = 0;
+
+const qslot = document.getElementById('qslot');
+const curEl = document.getElementById('cur');
+const totalEl = document.getElementById('total');
+const bar = document.getElementById('bar');
+totalEl.textContent = questoes.length;
+
+function renderQuestion(i){
+  const item = questoes[i];
+  curEl.textContent = i+1;
+  bar.style.width = `${Math.round(((i)/questoes.length)*100)}%`;
+
+  let html = '';
+  html += `<div class="qnum">Questão ${i+1}</div>`;
+  html += `<div class="question">${escapeHtml(item.q)}</div>`;
+  html += `<div class="choices">`;
+  item.choices.forEach((c, idx) => {
+    const id = `q${i}_c${idx}`;
+    const checked = respostas[i] === idx ? 'checked' : '';
+    html += `
+      <label class="choice" for="${id}">
+        <input type="radio" name="q${i}" id="${id}" ${checked} value="${idx}" onchange="selectChoice(${i},${idx})" />
+        <div><strong>${String.fromCharCode(65+idx)})</strong> <span style="margin-left:8px">${escapeHtml(c.replace(/^[A-Z]\)\s*/,''))}</span></div>
+      </label>`;
+  });
+  html += `</div>`;
+  qslot.innerHTML = html;
+
+  document.getElementById('prevBtn').style.display = i===0 ? 'none' : 'inline-block';
+  document.getElementById('nextBtn').style.display = i===questoes.length-1 ? 'none' : 'inline-block';
+  document.getElementById('corrigirBtn').style.display = i===questoes.length-1 ? 'inline-block' : 'none';
+}
+
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function selectChoice(qIdx, choiceIdx){
+  respostas[qIdx] = choiceIdx;
+  try { localStorage.setItem('simulado_respostas_estudos_area', JSON.stringify(respostas)); } catch(e){}
+}
+
+function nextQ(){ if(cur < questoes.length-1){ cur++; renderQuestion(cur); } }
+function prevQ(){ if(cur>0){ cur--; renderQuestion(cur); } }
+
+function corrigir(){
+  let acertos = 0;
+  let total = questoes.length;
+  const details = [];
+  for(let i=0;i<questoes.length;i++){
+    const user = respostas[i]===null ? null : String.fromCharCode(65+respostas[i]);
+    const correct = gabarito[i] ? String(gabarito[i]).toUpperCase() : null;
+    const ok = (user && correct && user === correct);
+    if(ok) acertos++;
+    details.push({i:i+1, q:questoes[i].q, user, correct, ok});
+  }
+
+  const area = document.getElementById('resultArea');
+  area.innerHTML = '';
+  const scorePct = Math.round((acertos/total)*100);
+  const box = document.createElement('div');
+  box.className = 'result';
+  box.innerHTML = `<div style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+    <div><strong>Pontuação:</strong> ${acertos} / ${total} (${scorePct}%)</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" onclick="downloadReport()">Baixar relatório (JSON)</button>
+      <button class="btn btn-ghost" onclick="showAllAnswers()">Mostrar todas as respostas</button>
+    </div>
+  </div>
+  <div style="margin-top:10px" id="resultList"></div>`;
+  area.appendChild(box);
+
+  const list = document.getElementById('resultList');
+  details.forEach(d=>{
+    const el = document.createElement('div');
+    el.style.padding='8px';
+    el.style.borderBottom='1px solid #eef2ff';
+    el.style.display='flex';
+    el.style.justifyContent='space-between';
+    el.style.alignItems='center';
+    const left = document.createElement('div');
+    left.innerHTML = `<strong>Q${d.i}.</strong> ${escapeHtml(d.q)}`;
+    const right = document.createElement('div');
+    right.innerHTML = `<div style="display:flex;gap:8px;align-items:center">
+        <div class="${d.ok? 'correct':'wrong'}">${d.ok ? 'ACERTO' : 'ERRO'}</div>
+        <div class="small">Sua: ${d.user || '—'} • Certo: ${d.correct || '—'}</div>
+      </div>`;
+    el.appendChild(left);
+    el.appendChild(right);
+    list.appendChild(el);
+  });
+}
+
+function exportAnswers(){
+  const payload = {respostas: respostas.map(x => x===null?null:String.fromCharCode(65+x)), timestamp: new Date().toISOString()};
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
+  const a = document.createElement('a');
+  a.href = dataStr; a.download = 'respostas_estudos_area.json'; a.click();
+}
+
+function importAnswers(){
+  const raw = prompt('Cole o JSON com respostas (ex: {\"respostas\":[\"A\",\"B\",...] }). Isso sobrescreverá suas respostas atuais. Deseja continuar?');
+  if(!raw) return;
+  try{
+    const obj = JSON.parse(raw);
+    if(!Array.isArray(obj.respostas)) throw new Error('Formato inválido');
+    for(let i=0;i<questoes.length;i++){
+      const r = obj.respostas[i];
+      if(typeof r === 'string' && /^[A-D]$/i.test(r)){
+        respostas[i] = r.toUpperCase().charCodeAt(0) - 65;
+      } else {
+        respostas[i] = null;
+      }
+    }
+    alert('Respostas importadas.');
+    renderQuestion(cur);
+  }catch(err){
+    alert('JSON inválido: ' + err.message);
+  }
+}
+
+function showAllAnswers(){
+  const listHtml = respostas.map((r, i) => {
+    const u = r===null ? '—' : String.fromCharCode(65+r);
+    const c = gabarito[i] || '—';
+    return `Q${i+1}: Sua=${u} • Certo=${c}`;
+  }).join('\n');
+  alert(listHtml);
+}
+
+function downloadReport(){
+  const report = {
+    respostas: respostas.map(x => x===null?null:String.fromCharCode(65+x)),
+    gabarito,
+    timestamp: new Date().toISOString()
+  };
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(report, null, 2));
+  const a = document.createElement('a');
+  a.href = dataStr; a.download = 'relatorio_estudos_area.json'; a.click();
+}
+
+// inicialização
+function loadState(){
+  try{
+    const saved = localStorage.getItem('simulado_respostas_estudos_area');
+    if(saved){
+      const arr = JSON.parse(saved);
+      if(Array.isArray(arr) && arr.length === questoes.length){
+        for(let i=0;i<arr.length;i++){
+          respostas[i] = arr[i];
+        }
+      }
+    }
+  }catch(e){}
+}
+loadState();
+renderQuestion(cur);
+document.addEventListener('keydown', e=>{
+  if(e.key === 'ArrowRight') nextQ();
+  if(e.key === 'ArrowLeft') prevQ();
+});
+
+// funções globais
+window.nextQ = nextQ;
+window.prevQ = prevQ;
+window.corrigir = corrigir;
+window.exportAnswers = exportAnswers;
+window.importAnswers = importAnswers;
+window.showAllAnswers = showAllAnswers;
+window.downloadReport = downloadReport;
+</script>
+</body>
+</html>
