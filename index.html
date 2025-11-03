@@ -1,806 +1,285 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PREPARATÓRIO ÁREA POLICIAL</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f7f9;
-            color: #333;
-        }
-        #simulado-container {
-            display: flex;
-            max-width: 1400px;
-            margin: 20px auto;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            min-height: 80vh;
-        }
-        /* Barra Lateral de Navegação (Desktop) */
-        #painel-navegacao {
-            flex: 0 0 280px;
-            padding: 20px;
-            background-color: #e9ecef;
-            border-right: 1px solid #ddd;
-            border-top-left-radius: 8px;
-            border-bottom-left-radius: 8px;
-            position: sticky;
-            top: 0;
-            height: fit-content;
-        }
-        /* Área Principal de Conteúdo */
-        #painel-principal {
-            flex-grow: 1;
-            padding: 30px;
-        }
-        h1 {
-            color: #004d99;
-            border-bottom: 2px solid #004d99;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        h2 {
-            color: #004d99;
-            margin-top: 0;
-            margin-bottom: 15px;
-        }
-        /* Configuração de 5 colunas para a navegação (Desktop) */
-        #botoes-questoes {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        .btn-navegacao {
-            background-color: #ccc;
-            color: #333;
-            border: none;
-            padding: 10px 5px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: background-color 0.2s;
-        }
-        .btn-navegacao:hover:not(.acertou):not(.errou):not(.atual) {
-            background-color: #b0b0b0;
-        }
-        /* --- ESTILOS DE CORREÇÃO --- */
-        .btn-navegacao.respondida {
-            background-color: #28a745; 
-            color: white;
-        }
-        .btn-navegacao.acertou { 
-            background-color: #28a745;
-            color: white;
-            font-weight: bold;
-        }
-        .btn-navegacao.errou { 
-            background-color: #dc3545;
-            color: white;
-            font-weight: bold;
-        }
-        /* --------------------------- */
-        .btn-navegacao.atual {
-            background-color: #007bff;
-            color: white;
-            font-weight: bold;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.7);
-        }
-
-        /* Estilos da Questão */
-        .questao-card {
-            border: 1px solid #ddd;
-            padding: 20px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-        }
-        .alternativa-item {
-            display: block;
-            margin: 10px 0;
-            padding: 10px;
-            border: 1px solid #eee;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .alternativa-item input[type="radio"] {
-            margin-right: 10px;
-        }
-        /* Cores de Correção */
-        .alternativa-item.correta {
-            background-color: #d4edda !important; 
-            border-color: #c3e6cb !important;
-            font-weight: bold;
-        }
-        .alternativa-item.errada {
-            background-color: #f8d7da !important; 
-            border-color: #f5c6cb !important;
-            color: #721c24;
-        }
-
-        .rodape-questao {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-        /* Botões de Ação */
-        .btn-acao {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-            margin-right: 10px; 
-            transition: background-color 0.2s;
-        }
-        .btn-finalizar {
-            background-color: #dc3545;
-            color: white;
-        }
-        .btn-reiniciar {
-            background-color: #ffc107;
-            color: #333;
-        }
-        .btn-admin-tab {
-            background-color: #004d99;
-            color: white;
-            margin-bottom: 20px;
-        }
-        .btn-compartilhar {
-            background-color: #17a2b8; /* Cor para o botão de compartilhamento */
-            color: white;
-        }
-        
-        /* Resultados */
-        .resultado {
-            padding: 30px;
-            text-align: center;
-        }
-        .acerto {
-            color: #28a745;
-            font-weight: bold;
-        }
-        .erro {
-            color: #dc3545;
-            font-weight: bold;
-        }
-
-        /* Admin Panel Styles */
-        #painel-administrador textarea {
-            width: 100%;
-            min-height: 200px;
-            margin-bottom: 10px;
-            padding: 10px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .admin-list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        .admin-list-item:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        .btn-deletar-individual {
-            background-color: #dc3545;
-            color: white;
-            padding: 5px 10px;
-            font-size: 12px;
-            margin: 0;
-        }
-        .btn-deletar-tudo {
-            background-color: #6c757d;
-            color: white;
-            margin-top: 20px;
-        }
-
-        /* ============================================== */
-        /* MEDIA QUERIES PARA RESPONSIVIDADE (MOBILE/TABLET) */
-        /* ============================================== */
-        @media (max-width: 768px) {
-            #simulado-container {
-                flex-direction: column; /* Pilha os painéis */
-                margin: 10px;
-                box-shadow: none; /* Remove a sombra no celular */
-            }
-            #painel-navegacao {
-                flex: auto; /* Permite largura total */
-                width: 100%;
-                position: relative; /* Não fica sticky no celular */
-                border-right: none;
-                border-bottom: 1px solid #ddd;
-                border-radius: 8px;
-                margin-bottom: 10px;
-                padding: 15px;
-                border-top-right-radius: 8px; /* Arredonda o topo direito */
-                border-bottom-left-radius: 0; /* Remove arredondamento do canto inferior esquerdo */
-            }
-            #painel-principal {
-                padding: 15px;
-            }
-            
-            /* Deixa os botões de navegação mais compactos */
-            #botoes-questoes {
-                grid-template-columns: repeat(8, 1fr); /* 8 colunas para melhor aproveitamento */
-                gap: 5px;
-            }
-            .btn-navegacao {
-                padding: 8px 3px;
-                font-size: 10px;
-            }
-
-            /* Botões de navegação da questão (Anterior/Próxima) em coluna */
-            .rodape-questao {
-                flex-direction: column;
-            }
-            .rodape-questao button {
-                margin: 5px 0;
-            }
-
-            /* Botões de ação (Finalizar/Reiniciar) em coluna ou ajustados */
-            .btn-acao {
-                width: 100%;
-                margin-right: 0;
-            }
-            .btn-admin-tab {
-                width: 48%; /* Permite 2 botões lado a lado no menu */
-                margin-right: 4%;
-            }
-            .btn-admin-tab:last-child {
-                margin-right: 0;
-            }
-        }
-        @media (max-width: 480px) {
-            #botoes-questoes {
-                grid-template-columns: repeat(6, 1fr); /* 6 colunas para telas muito pequenas */
-            }
-        }
-    </style>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#004d99">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Simulados Interativos - Modo Deus</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #222;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  header {
+    background: #fff;
+    width: 100%;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header h1 {
+    margin: 0;
+    color: #494949;
+  }
+  .btn {
+    font-weight: bold;
+    background: #764ba2;
+    color: white;
+    padding: 0.7rem 1.4rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .btn:hover {
+    background: #5a3680;
+  }
+  main {
+    margin-top: 1.5rem;
+    width: 90%;
+    max-width: 900px;
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .simulado-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  .simulado-card {
+    flex: 1 1 calc(50% - 15px);
+    background: #f6f6f6;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: inset 0 0 10px #a291c1ab;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .simulado-card:hover {
+    background: #e5e5f2;
+  }
+  .questao {
+    margin-top: 15px;
+    font-weight: 600;
+  }
+  .respostas {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .resposta {
+    display: flex;
+    align-items: center;
+  }
+  .resposta input[type=radio] {
+    margin-right: 10px;
+    cursor: pointer;
+  }
+  .resultado {
+    margin-top: 1rem;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #2e7d32;
+  }
+  textarea, input[type=file] {
+    width: 100%;
+    font-family: monospace;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    border-radius: 6px;
+    border: 2px solid #ddd;
+    padding: 0.5rem;
+  }
+  .botao-converter {
+    margin-top: 10px;
+    background: #4a90e2;
+  }
+</style>
 </head>
 <body>
+<header>
+  <h1>Simulados Interativos - Modo Deus</h1>
+  <div>
+    <button class="btn" id="btnAdmin">Admin Panel</button>
+  </div>
+</header>
+<main>
+  <section id="simuladosContainer">
+    <p>Carregando simulados...</p>
+  </section>
+  <section id="adminPanel" style="display:none;">
+    <h2>Inserir novo simulado JSON</h2>
+    <textarea id="jsonInput" rows="10" placeholder='Cole seu simulado JSON aqui'></textarea>
+    <button class="btn botao-converter" id="btnInserirSimulado">Inserir Simulado</button>
 
-<div id="simulado-container">
-    
-    <div id="painel-navegacao">
-        <h2>Menu</h2>
-        <button class="btn-acao btn-admin-tab" onclick="mostrarSimulado()">Simulado</button>
-        <button class="btn-acao btn-admin-tab" onclick="mostrarAdmin()">Administrador</button>
-        
-        <div id="navegacao-simulado">
-            <h2>Navegação de Questões</h2>
-            <div id="botoes-questoes">
-                </div>
-            <button class="btn-acao btn-reiniciar" onclick="reiniciarSimulado()">Reiniciar Simulado</button>
-            <button class="btn-acao btn-finalizar" onclick="finalizarSimulado()">Finalizar Simulado</button>
-        </div>
-    </div>
+    <h2>Upload de PDFs</h2>
+    <input type="file" id="pdfInput" accept="application/pdf" multiple />
+    <button class="btn" id="btnUploadPDF">Enviar PDFs</button>
 
-    <div id="painel-principal">
-        <h1 id="titulo-principal">PREPARATÓRIO ÁREA POLICIAL</h1>
-
-        <div id="area-simulado">
-            <div id="area-questao">
-                <h2>Carregando Simulado...</h2>
-            </div>
-            <div id="area-resultado" style="display:none;">
-                </div>
-        </div>
-
-        <div id="painel-administrador" style="display:none;">
-            <h2>Gerenciamento de Questões</h2>
-            
-            <p>Insira as questões no formato JSON (Array de objetos) para adicionar ao banco de dados.</p>
-            <textarea id="json-input" placeholder='Exemplo: [{"numero": 61, "enunciado": "Nova Questão...", "alternativas": {"A": "Alt A", "B": "Alt B"}, "correta": "A"}]'></textarea>
-            <button class="btn-acao" onclick="carregarQuestoesJSON()">Adicionar Questões</button>
-            <hr>
-
-            <h3>Questões Atuais (<span id="count-questoes">0</span>)</h3>
-            <div id="lista-admin">
-                </div>
-            <button class="btn-acao btn-deletar-tudo" onclick="deletarTodasQuestoes()">Excluir TODAS as Questões</button>
-        </div>
-    </div>
-</div>
-
+    <h2>Converter simulado texto para JSON</h2>
+    <textarea id="textSimulado" rows="10" placeholder='Cole o simulado em texto aqui para converter'></textarea>
+    <button class="btn botao-converter" id="btnConverterTexto">Converter para JSON</button>
+    <pre id="jsonOutput" style="white-space: pre-wrap; background:#f0f0f0; padding:1rem; margin-top:1rem;"></pre>
+  </section>
+</main>
 <script>
-// JSON de questões padrão
-const questoesPadrao = [
-    { "numero": 1, "enunciado": "Em: \"Se você apenas exportar commodities para a China, nunca conseguirá esse efeito positivo do emprego industrial na sociedade, dado que você não precisará de tanta mão de obra remunerada e de alta produtividade\", conclui. Pode ser substituída, sem alteração de sentido, a expressão destacada no texto por:", "alternativas": { "A": "Ainda que.", "B": "Desde que.", "C": "Porquanto.", "D": "Apesar de que" }, "correta": "C" },
-    { "numero": 2, "enunciado": "Em: \"...o agrião se destaca pela sua riqueza nutritiva. O vegetal de folhas escuras...\" O recurso utilizado no trecho acima é identificado como:", "alternativas": { "A": "Zeugma.", "B": "Hipálage.", "C": "Anáfora.", "D": "Conotação." }, "correta": "C" },
-    { "numero": 3, "enunciado": "O que originou o termo \"gladiador\" na sociedade romana? (Baseado no texto fornecido, que diz que o termo deriva de sua principal arma, o gládio)", "alternativas": { "A": "O tipo de entretenimento que ofereciam.", "B": "A arma utilizada pelos lutadores.", "C": "A arena onde ocorriam as lutas.", "D": "O nome do principal palco de combates." }, "correta": "B" },
-    { "numero": 4, "enunciado": "Qual era a realidade da vida dos gladiadores na Roma antiga, segundo o texto?", "alternativas": { "A": "Todos os gladiadores eram ricos e escolhiam a profissão por fama.", "B": "Gladiadores raramente se tornavam famosos, mas tinham longa expectativa de vida.", "C": "Gladiadores tinham uma vida curta e lutavam por necessidade.", "D": "A profissão de gladiador era sempre voluntária e trazia luxo para todos os participantes." }, "correta": "C" },
-    { "numero": 5, "enunciado": "Correlacione a posição dos pronomes átonos (Ênclise - I; Mesóclise - II; Próclise - III) nas seguintes orações: 1. Algum...lhes darão; 2. Convidá-lo-ei; 3. Chamem-me; 4. Já...não o quero; 5. Encantei-me.", "alternativas": { "A": "I > II > III > I > III.", "B": "III > I > II > III > II.", "C": "III > II > I > III > I.", "D": "II > I > III > II > III." }, "correta": "C" },
-    { "numero": 6, "enunciado": "Em quais das afirmativas lidas há o emprego de termo com a ortografia incorreta nos termos da Norma Culta da Língua Portuguesa? (I. bicabornato; IV. excessão; V. reinvidicar)", "alternativas": { "A": "II, III e V.", "B": "I, IV e V.", "C": "I, III e IV.", "D": "II e IV." }, "correta": "B" },
-    { "numero": 7, "enunciado": "Quanto aos termos da oração em negrito (o termo cuja função sintática é nomeada na alternativa), seguindo os fragmentos musicais, assinale a alternativa correta quanto à função sintática dos termos destacados.", "alternativas": { "A": "“Todo dia ela faz tudo sempre igual” - Função sintática: objeto indireto. (Incorreta, é Objeto Direto)", "B": "“Me sorri um sorriso pontual” - Função sintática: objeto indireto. (Correta, 'Me' é Objeto Indireto)", "C": "“É um lago negro o seu olhar” - Função sintática: sujeito. (Correta, 'o seu olhar' é Sujeito)", "D": "“E morrer no mar (no mar)” - Função sintática: complemento nominal. (Incorreta, é Adjunto Adverbial)" }, "correta": "D" },
-    { "numero": 8, "enunciado": "Marque a função da linguagem que predomina no período: \"O brasileiro não lê, mas vez ou outra aparecem best-sellers por aqui\".", "alternativas": { "A": "Referencial.", "B": "Poética.", "C": "Apelativa.", "D": "Fática." }, "correta": "A" },
-    { "numero": 9, "enunciado": "A frase abaixo que mostra perfeita adequação vocabular é:", "alternativas": { "A": "No deserto, a alta temperatura é visível.", "B": "Graças aos medicamentos, curou o resfriado.", "C": "Nas provas, esperava enfrentar algumas facilidades.", "D": "Foi elogiado por causa do ato solidário que cometeu." }, "correta": "B" },
-    { "numero": 10, "enunciado": "Identifique a alternativa que completa correta e respectivamente as lacunas abaixo, de acordo com as regras de regência estabelecidas pela norma culta: voltadas (1)...saúde; para (2)...a população; O acesso (3)...saúde; acesso (4)...médicos.", "alternativas": { "A": "A, a qual, à, aos", "B": "A, quais, à, os", "C": "Para a, as quais, à, aos", "D": "Para a, as quais, a, os" }, "correta": "D" },
-    { "numero": 11, "enunciado": "João: 2f + 3c = 130. Perla: 3f + 2c = 145. Quanto custou cada item?", "alternativas": { "A": "Cada fone custou R$ 40,00 e cada carregador R$ 25,00.", "B": "Cada fone custou R$ 30,00 e cada carregador R$ 15,00.", "C": "Cada fone custou R$ 25,00 e cada carregador R$ 20,00.", "D": "Cada fone custou R$ 35,00 e cada carregador R$ 20,00." }, "correta": "D" },
-    { "numero": 12, "enunciado": "Meirielen usa a teoria do desvio padrão para determinar nota extra. Se Ana tirou 6,2, 9,3 e 7,4, quanto ela ganhou de nota extra? (Questão incompleta, resposta determinada pelo gabarito provável de concurso).", "alternativas": { "A": "Ela recebeu 1,7 pontos.", "B": "Ela recebeu 1,3 pontos.", "C": "Ela recebeu 2,1 pontos.", "D": "Ela recebeu 1 ponto." }, "correta": "B" },
-    { "numero": 13, "enunciado": "O aplicativo de banco disponibiliza 15 símbolos para formar uma senha com 6 dígitos. Quantas senhas diferentes é possível formar com esse sistema? (O gabarito aponta para Combinação C(15, 6), embora a ordem importe em senhas).", "alternativas": { "A": "É possível formar 7.200 senhas diferentes.", "B": "É possível formar 4.580 senhas diferentes.", "C": "É possível formar 6.300 senhas diferentes.", "D": "É possível formar 5.005 senhas diferentes." }, "correta": "D" },
-    { "numero": 14, "enunciado": "Total de R$ 600 mil investido em A e B. P1: (3/5)A + (2/3)B = R$ 376 mil. Qual o investimento em A no segundo semestre?", "alternativas": { "A": "R$ 80 mil.", "B": "R$ 144 mil.", "C": "R$ 160 mil.", "D": "R$ 216 mil." }, "correta": "B" },
-    { "numero": 15, "enunciado": "Licença A: R$ 120; B: R$ 150. Total: 40 licenças. Custo: R$ 5.700. Quantidade de licenças tipo B?", "alternativas": { "A": "10.", "B": "15.", "C": "20.", "D": "30." }, "correta": "D" },
-    { "numero": 16, "enunciado": "Bernardo elaborou a equação 2x + 5 = 47, e o resultado é a sua idade. Quantos anos Bernardo tem?", "alternativas": { "A": "Bernardo tem 16 anos.", "B": "Bernardo tem 24 anos.", "C": "Bernardo tem 18 anos.", "D": "Bernardo tem 21 anos." }, "correta": "D" },
-    { "numero": 17, "enunciado": "Negação lógica da afirmação: \"Se os livros foram catalogados, então eles já foram distribuídos nas estantes\".", "alternativas": { "A": "Os livros foram catalogados e não foram distribuídos nas estantes.", "B": "Os livros não foram catalogados e não foram distribuídos nas estantes.", "C": "Os livros foram catalogados ou foram distribuídos nas estantes.", "D": "Se os livros não foram catalogados, então eles não foram distribuídos nas estantes." }, "correta": "A" },
-    { "numero": 18, "enunciado": "Observe a sequência: P, R, P, R, E, V, P, R, P, R, E, V ... Determine o par de letras que ocupa, respectivamente, a 2025ª e a 2026ª posições.", "alternativas": { "A": "R, E.", "B": "E, V.", "C": "P, R.", "D": "R, P." }, "correta": "C" },
-    { "numero": 19, "enunciado": "Idades: A = M + 1; M = J + 2; J = S - 1; L = J - 2. Assinale a alternativa correta.", "alternativas": { "A": "Maria é a mais velha entre os cinco.", "B": "André é cinco anos mais velho que Luzia.", "C": "Sônia é a mais nova entre os cinco.", "D": "André e José têm um ano de diferença." }, "correta": "B" },
-    { "numero": 20, "enunciado": "Todas as salas do 1º andar do bloco C têm AC. Nem todas as salas do bloco C têm AC. Pode-se concluir que:", "alternativas": { "A": "no colégio, todas as salas do primeiro andar têm ar-condicionado.", "B": "pelo menos uma sala que não está no primeiro andar tem ar-condicionado.", "C": "nenhuma outra sala tem ar-condicionado.", "D": "pelo menos uma sala do bloco C não está no primeiro andar." }, "correta": "D" },
-    { "numero": 21, "enunciado": "Agenda 2030 da ONU tem por tema:", "alternativas": { "A": "“Transformando o Nosso Mundo: A Agenda 2030 para o Desenvolvimento Ecoglobal”", "B": "“Transformando o Nosso Mundo: A Agenda 2030 para o em paz”", "C": "“Transformando o Nosso Mundo: A Agenda 2030 para o Desenvolvimento Sustentável”", "D": "“Transformando o Nosso Mundo: A Agenda 2030 para o Desenvolvimento do ser humano”" }, "correta": "C" },
-    { "numero": 22, "enunciado": "Governo do Estado anunciou em 2025 a contratação de:", "alternativas": { "A": "a contratação de até 4,8 mil câmeras corporais que serão utilizadas pelas forças de segurança do Espírito Santo a partir deste ano.", "B": "a contratação de até 4,8 mil totens que serão utilizadas pelas forças de segurança do Espírito Santo a partir deste ano.", "C": "a contratação de até 4,8 mil novas viaturas que serão utilizadas pelas forças de segurança do Espírito Santo a partir deste ano.", "D": "a contratação de até 4,8 mil armas de fogo e não letais que serão utilizadas pelas forças de segurança do Espírito Santo a partir deste ano." }, "correta": "A" },
-    { "numero": 23, "enunciado": "As forças de segurança do Espírito Santo alcançaram a marca de 400 prisões realizadas com o uso de:", "alternativas": { "A": "com uso de tecnologia de reconhecimento facial.", "B": "com uso de drones.", "C": "com uso de tecnologia totens eletronicos e radares.", "D": "com uso de mega operações de blitz." }, "correta": "A" },
-    { "numero": 24, "enunciado": "Em 2025 Espírito Santo passou a dispor de monitoramento de 24 horas de:", "alternativas": { "A": "monitoramento ininterrupto, e praticamente em tempo real, de incêndios em vegetação em todo o território capixaba.", "B": "monitoramento ininterrupto, e praticamente em tempo real, do mar, principalemente em pontos turisticos, em todo o território capixaba.", "C": "monitoramento ininterrupto, e praticamente em tempo real, do mar, principalemente em pontos turisticos, em todo o território capixaba.", "D": "B - monitoramento ininterrupto, e praticamente em tempo real, do mar, das rodovias (cerco inteligente), em todo o território capixaba." }, "correta": "A" },
-    { "numero": 25, "enunciado": "Em setembro de 2025 - O sistema Aquaviário recebeu nesta semana a sua quinta embarcação:", "alternativas": { "A": "O novo barco, batizado de FRADINHO, segue o padrão dos demais...", "B": "O novo barco, batizado de MESTRE ÁLVARO, segue o padrão dos demais e conta com climatização, acessibilidade... Inicialmente, a Mestre Álvaro vai operar no trecho entre a Prainha, em Vila Velha, e a Praça do Papa, em Vitória...", "C": "O novo barco, batizado de MESTRE ÁLVARO, segue o padrão dos demais... A Mestre Álvaro vai operar no trecho entre a Serra e Vitória.", "D": "O novo barco, batizado de QUEIMADOS, segue o padrão dos demais e conta com climatização, acessibilidade..." }, "correta": "B" },
-    { "numero": 26, "enunciado": "Classifique os softwares: (1) Word, Excel, Jogos; (2) Sistemas Operacionais, Interface e Rede; (3) Antivírus e Compactadores de arquivos.", "alternativas": { "A": "básico, utilitário e aplicativo.", "B": "básico, aplicativo e utilitário.", "C": "aplicativo, básico e utilitário.", "D": "aplicativo, utilitário e básico." }, "correta": "C" },
-    { "numero": 27, "enunciado": "Um usuário formatou um parágrafo no MS-Word. Selecionou todo o parágrafo e pressionou Centralizado, Negrito e Itálico, nessa ordem. Assumindo que o parágrafo tinha 4 palavras e estava inicialmente **todo em Negrito** e **sem Itálico**, o número de palavras em negrito e itálico é, respectivamente:", "alternativas": { "A": "0 e 4.", "B": "0 e 2.", "C": "2 e 2.", "D": "2 e 4." }, "correta": "A" },
-    { "numero": 28, "enunciado": "Tabelas Dinâmicas no Excel 2019. Marque V ou F: (1) exigem complementos de terceiros para segmentações; (2) possível configurar segmentações; (3) conexão com Power Query facilita integração; (4) aplicação de formatação condicional integrada.", "alternativas": { "A": "V, V, V, V.", "B": "V, F, F, V.", "C": "F, F, V, V.", "D": "F, V, V, V." }, "correta": "D" },
-    { "numero": 29, "enunciado": "Qual atalho de teclado do navegador Mozilla Firefox (em português) o servidor deve utilizar para consultar rapidamente as “Informações da página”?", "alternativas": { "A": "Ctrl + I", "B": "Ctrl + Shift + J", "C": "Ctrl + U", "D": "Ctrl + Shift + M" }, "correta": "A" },
-    { "numero": 30, "enunciado": "A principal e correta função de um firewall em uma rede de computadores é:", "alternativas": { "A": "centralizar todas as informações que transitam pela rede em um único nó, que é onde ele está instalado, para que possa criptografá-los.", "B": "controlar o tráfego de dados entre redes, permitindo ou bloqueando conexões com base em regras predefinidas.", "C": "detectar é remover vírus de arquivos é bloquear à comunicação de dados instantaneamente em toda a rede quando um malware se apresenta.", "D": "contribuir para acelerar a velocidade de conexão à internet em conjunto com aplicativos aceleradores de tráfego." }, "correta": "B" },
-    { "numero": 31, "enunciado": "A ética distingue-se da moral porque:", "alternativas": { "A": "A ética corresponde a um conjunto de normas imutáveis, enquanto a moral é mutável.", "B": "A moral é reflexão crítica sobre valores universais, enquanto a ética é o costume social.", "C": "A ética busca compreender e fundamentar os princípios da conduta, enquanto a moral é o conjunto de regras praticadas em determinada sociedade.", "D": "Ambas são sinônimos e se referem ao mesmo conceito." }, "correta": "C" },
-    { "numero": 32, "enunciado": "O servidor público, ao tratar com cortesia e respeito os cidadãos e colegas de trabalho, está cumprindo diretamente o dever funcional de:", "alternativas": { "A": "Legalidade.", "B": "Urbanidade.", "C": "Eficiência.", "D": "Publicidade." }, "correta": "B" },
-    { "numero": 33, "enunciado": "O Código de Ética... da Polícia Penal do Estado do Espírito Santo (PPES)... NÃO é vedado ao servidor:", "alternativas": { "A": "comentar com terceiros assuntos internos que envolvam informações que possam vir a antecipar decisão ou ação da instituição;", "B": "Conceder entrevistas à imprensa apenas quando autorizado e em conformidade com normativos internos.", "C": "utilizar, para o atendimento de interesses particulares, recursos, serviços ou pessoal", "D": "divulgar ou facilitar a divulgação, por qualquer meio, de informações sigilosas obtidas por qualquer forma em razão do cargo ou função;" }, "correta": "A" },
-    { "numero": 34, "enunciado": "Segundo Decreto nº 1.595-R, de 06 de dezembro de 2005. Quais são os princípios fundamentais a serem observados pelos servidores públicos civis do Poder Executivo?", "alternativas": { "A": "interesse público, integridade, imparcialidade, transparência, honestidade, responsabilidade, respeito, competência.", "B": "legalidade, impessoalidade, moralidade, publicidade, eficiência.", "C": "impessoalidade, moralidade, publicidade, eficiência, legalidade.", "D": "impessoalidade, moralidade, publicidade, eficiência, legalidade, interesse público, integridade, imparcialidade, transparência, honestidade, responsabilidade, respeito, competência." }, "correta": "A" },
-    { "numero": 35, "enunciado": "Determinado funcionário público aceitou fazer um serviço de consultoria para um particular, pessoa física, o qual tem interesse suscetível de ser atingido... Considerando a Lei de Improbidade Administrativa, pode-se afirmar que esse ato:", "alternativas": { "A": "Não tem previsão legal enquanto ato de improbidade administrativa.", "B": "Será considerado de improbidade administrativa, desde que tenha sido doloso.", "C": "Será considerado de improbidade administrativa, independentemente do dolo do agente.", "D": "Será considerado de improbidade administrativa, desde que seja doloso, gere enriquecimento do agente de forma direta e cause efetivo prejuízo ao ente público." }, "correta": "B" },
-    { "numero": 36, "enunciado": "Cargos de Ministro da Defesa, STF e STJ. Quais não podem recair sobre brasileiros naturalizados?", "alternativas": { "A": "A indicação presidencial para os cargos de Ministro do Supremo Tribunal Federal e de Ministro do Superior Tribunal de Justiça pode recair sobre brasileiros naturalizados.", "B": "A indicação presidencial para os cargos de Ministro de Estado da Defesa e Ministro do Superior Tribunal de Justiça pode recair sobre brasileiros naturalizados.", "C": "A indicação presidencial para os cargos de Ministro do Supremo Tribunal Federal e de Ministro do Superior Tribunal de Justiça não pode recair sobre brasileiros naturalizados.", "D": "A indicação presidencial para os cargos de Ministro do Supremo Tribunal Federal e de Ministro de Estado da Defesa não pode recair sobre brasileiros naturalizados." }, "correta": "D" },
-    { "numero": 37, "enunciado": "Quais situações apresentadas (Estrangeiro no cargo; Concurso público; Função de Confiança para direção/chefia/assessoramento; Teto de vencimentos) estão de acordo com o regramento consolidado no art. 37 da Constituição Federal?", "alternativas": { "A": "I, II, III e IV.", "B": "Apenas II e IV.", "C": "Apenas I, II e III.", "D": "Apenas I, III e IV." }, "correta": "C" },
-    { "numero": 38, "enunciado": "Acerca dos atos do poder público, assinale a opção correta.", "alternativas": { "A": "A convalidação implica o refazimento de ato, de modo válido. Em se tratando de atos nulos, os efeitos da convalidação serão retroativos; para atos anuláveis ou inexistentes tais efeitos não poderão retroagir.", "B": "Atos compostos resultam da manifestação de dois ou mais órgãos, quando a vontade de um é instrumental em relação à do outro. Nesse caso, praticam-se dois atos: um principal e outro acessório.", "C": "Atos complexos resultam da manifestação de um único órgão colegiado, em que a vontade de seus membros é heterogênea. Nesse caso, não há identidade de conteúdo nem de fins.", "D": "Atos gerais de caráter normativo não são passíveis de revogação, eles podem ser somente anulados." }, "correta": "B" },
-    { "numero": 39, "enunciado": "Quanto à finalidade, é caracterizado como vício do ato administrativo:", "alternativas": { "A": "a função de fato.", "B": "a inexistência de motivos.", "C": "o desvio de poder.", "D": "o excesso de poder." }, "correta": "C" },
-    { "numero": 40, "enunciado": "É exemplo de ato de improbidade administrativa que causa prejuízo ao erário:", "alternativas": { "A": "perceber vantagem econômica para intermediar a liberação ou aplicação de verba pública de qualquer natureza.", "B": "praticar ato visando fim proibido em lei ou regulamento ou diverso daquele previsto na regra de competência.", "C": "conceder benefício administrativo ou fiscal sem a observância das formalidades legais ou regulamentares aplicáveis à espécie.", "D": "perceber vantagem econômica, direta ou indireta, para facilitar a alienação, permuta ou locação de bem público ou o fornecimento de serviço por ente estatal por preço inferior ao valor de mercado." }, "correta": "C" },
-    { "numero": 41, "enunciado": "A respeito da responsabilidade civil extracontratual da Administração, assinale a alternativa correta.", "alternativas": { "A": "O Direito Brasileiro como regra a teoria da culpa integral.", "B": "O Direito Brasileiro adota a teoria da culpa anônima.", "C": "Por força da disposição constitucional, a Administração não pode ser eximida, em relações contratuais, da responsabilização por caso fortuito ou força maior.", "D": "Ainda que a conduta estatal seja lícita, ficará caracterizada a responsabilidade do Estado quando comprovada a ilicitude do dano." }, "correta": "D" },
-    { "numero": 42, "enunciado": "Nos crimes que envolvem violência doméstica e familiar contra mulher, violência contra criança, adolescente, idoso ou pessoa com deficiência, marque a correta:", "alternativas": { "A": "o inquérito correrá sob sigilo.", "B": "quando da lavratura da portaria, a autoridade policial deverá notificar o órgão ministerial responsável pela tutela do respectivo interesse.", "C": "terá prioridade, sobre os demais crimes, a realização de exame de corpo de delito.", "D": "a autoridade policial nomeará curador para a vítima." }, "correta": "C" },
-    { "numero": 43, "enunciado": "O CPP, do art. 4o ao 23, prevê expressamente algum “recurso” com relação ao inquérito policial?", "alternativas": { "A": "Sim, ao Poder Judiciário, do despacho que indeferir produção de prova.", "B": "Sim, ao Ministério Público, do despacho que indeferir produção de prova.", "C": "Sim, ao chefe de Polícia, do despacho que indeferir o requerimento de abertura.", "D": "Sim, ao Poder Judiciário, caso não sejam observadas as formalidades atinentes à prova." }, "correta": "C" },
-    { "numero": 44, "enunciado": "Nos exatos termos do art. 302 do CPP, considera-se em flagrante delito quem:", "alternativas": { "A": "cometeu a infração penal nas últimas 24h.", "B": "é imediatamente reconhecido como autor do crime pela vítima.", "C": "é perseguido, logo após, pela autoridade, pelo ofendido ou por qualquer pessoa, em situação que faça presumir ser autor da infração.", "D": "é avistado com instrumentos, armas, objetos ou papéis." }, "correta": "C" },
-    { "numero": 45, "enunciado": "Comete falta grave o condenado à pena privativa de liberdade que, EXCETO:", "alternativas": { "A": "tiver em sua posse, utilizar ou fornecer aparelho telefônico, de rádio ou similar, que permita a comunicação com outros presos ou com o ambiente externo.", "B": "provocar acidente de trabalho.", "C": "incitar ou participar de movimento para subverter a ordem ou a disciplina.", "D": "praticar fato previsto como crime culposo." }, "correta": "D" },
-    { "numero": 46, "enunciado": "Quanto às disposições presentes na Lei de Execução Penal, assinale a alternativa correta. (Considerando a redação anterior à Lei 14.843/24)", "alternativas": { "A": "A remição por estudo somente se admite se desenvolvida a atividade educacional de forma presencial.", "B": "O instituto da permissão de saída não se aplica ao preso provisório.", "C": "Praticada falta disciplinar pelo condenado, deverá ser instaurado o procedimento para sua apuração, conforme regulamento, assegurados o direito de defesa, a motivação da decisão, vedado o decreto de isolamento preventivo do faltoso pela autoridade administrativa.", "D": "Dentre os requisitos objetivos para autorização da saída temporária, exige-se o cumprimento mínimo de 1/6 (um sexto) da pena, se o condenado for primário, e 1/4 (um quarto), se reincidente." }, "correta": "D" },
-    { "numero": 47, "enunciado": "Considerando o disposto na Lei n.º 13.869/2019 (Abuso de autoridade), assinale a opção correta.", "alternativas": { "A": "Não faz coisa julgada em âmbito cível a sentença penal que reconhecer ter sido o ato praticado em estado de necessidade.", "B": "Em razão de sua imunidade parlamentar, os membros do Poder Legislativo não podem ser sujeitos ativos de crimes de abuso de autoridade, salvo se investidos em funções das respectivas mesas diretoras.", "C": "A condenação pode estabelecer a perda do cargo público como um de seus efeitos, desde que haja reincidência em crime de abuso de autoridade e o efeito seja motivado na sentença.", "D": "Não se admite o ajuizamento de ação penal privada nos casos de crimes de abuso de autoridade." }, "correta": "C" },
-    { "numero": 48, "enunciado": "Nos termos da Lei nº 13.869/2019 (Lei de Abuso de Autoridade), está correto o que se afirma em: I. Exige dolo específico; II. Ação penal pública incondicionada; III. Sujeito ativo se limita à lista de servidores.", "alternativas": { "A": "III, apenas.", "B": "I e II, apenas.", "C": "I, apenas.", "D": "I, II e III." }, "correta": "B" },
-    { "numero": 49, "enunciado": "Nos termos do Artigo 144 da Constituição de 1988 (Segurança Pública), assinale a correta.", "alternativas": { "A": "Compete às polícias civis, apurar infrações penais contra a ordem política e social ou em detrimento de bens, serviços e interesses da União.", "B": "Compete a polícia rodoviária federal exercer as funções de polícia marítima, aeroportuária e de fronteiras.", "C": "Os Estados deverão constituir guardas municipais destinadas à proteção de seus bens, serviços e instalações.", "D": "A segurança viária... compete, no âmbito dos Estados, do Distrito Federal e dos Municípios, aos respectivos órgãos ou entidades executivos e seus agentes de trânsito." }, "correta": "D" },
-    { "numero": 50, "enunciado": "De acordo com a Lei n° 9.455/1997 (crimes de tortura), assinale a alternativa incorreta.", "alternativas": { "A": "Constitui crime de tortura submeter alguém, sob sua guarda, poder ou autoridade, com emprego de violência ou grave ameaça, a intenso sofrimento físico ou mental, como forma de aplicar castigo pessoal ou medida de caráter preventivo", "B": "Também responde pelo crime de tortura e incorre na mesma pena aquele que se omite em face das condutas tipificadas como tortura, quando tinha o dever de evitá-las ou apurá-las", "C": "O crime de tortura tem a pena aumentada se o crime é cometido contra criança, gestante, portador de deficiência, adolescente ou maior de 60 (sessenta) anos", "D": "Constitui crime de tortura constranger alguém com violência para obter confissão é tortura" }, "correta": "B" },
-    { "numero": 51, "enunciado": "Colaboração premiada (Lei 12.850/13): Qual requisito NÃO está previsto para a sua concessão?", "alternativas": { "A": "Identificação de coautores", "B": "Recuperação parcial do produto", "C": "Revelação da estrutura hierárquica", "D": "a localização de eventual vítima, ainda que sua integridade física não tenha sido preservada." }, "correta": "D" },
-    { "numero": 52, "enunciado": "De acordo com as Regras de Mandela, identifique o requisito principal para a realização de inspeções em estabelecimentos prisionais.", "alternativas": { "A": "As inspeções devem ser realizadas com a devida comunicação prévia à direção do presídio, garantindo que a segurança dos inspetores seja assegurada.", "B": "As inspeções devem ser conduzidas exclusivamente por órgãos independentes, para evitar que a administração prisional manipule os resultados.", "C": "As inspeções devem ser realizadas por inspetores qualificados e experientes, incluindo profissionais de saúde, para garantir uma avaliação completa das condições prisionais.", "D": "As inspeções devem ser rápidas e não interferir nas rotinas diárias dos presos para manter a normalidade do ambiente prisional." }, "correta": "C" },
-    { "numero": 53, "enunciado": "Direito expresso na Declaração Universal dos Direitos Humanos (DUDH).", "alternativas": { "A": "juri com sigilo", "B": "inexistência de pena perpétua", "C": "submissão a tribunal de exceção", "D": "não ser preso, detido ou exilado arbitrariamente" }, "correta": "D" },
-    { "numero": 54, "enunciado": "Caso: induzir criança (menor de 14 anos) a automutilar com resultado morte; crime aplicável?", "alternativas": { "A": "Lesão corporal dolosa com resultado morte", "B": "Homicídio", "C": "Suicídio", "D": "Lesão culposa com resultado morte" }, "correta": "B" },
-    { "numero": 55, "enunciado": "Chefe que deixa de comunicar corrupção do subordinado; qual crime? (O crime correto seria Condescendência Criminosa, mas o gabarito provável de concurso costuma forçar a Corrupção Passiva no contexto de omissão por benefício.)", "alternativas": { "A": "Corrupção passiva", "B": "Nenhum crime", "C": "Prevaricação", "D": "Condescendência criminosa" }, "correta": "A" },
-    { "numero": 56, "enunciado": "Servidor que solicita vantagem indevida pratica:", "alternativas": { "A": "Corrupção ativa", "B": "Peculato", "C": "Corrupção passiva", "D": "Condescendência criminosa" }, "correta": "C" },
-    { "numero": 57, "enunciado": "Segundo LC 1061/2023 (Lei Orgânica da PPES), a Polícia Penal deve observar:", "alternativas": { "A": "Promoção dos direitos humanos", "B": "Incitação e mediação de conflitos", "C": "Uso desmedido da força", "D": "Atendimento ao público com presteza..." }, "correta": "A" },
-    { "numero": 58, "enunciado": "Segundo Lei Complementar nº 46 (Estatuto dos Servidores Públicos Civis do ES), marque a correta:", "alternativas": { "A": "Servidor responde civil, penal e objetivamente", "B": "A responsabilidade administrativa resulta apenas de omissão", "C": "As cominações não podem cumular-se", "D": "A responsabilidade penal abrange os crimes e contravenções imputados ao servidor público, nessa qualidade." }, "correta": "D" },
-    { "numero": 59, "enunciado": "Símbolos institucionais da PPES segundo LC 1061/2023.", "alternativas": { "A": "O hino, a bandeira, o brasão e o distintivo", "B": "hino, a bandeira, o brasão, as armas e o distintivo", "C": "hino, a bandeira, o brasão, as armas, o uniforme e o distintivo", "D": "Bandeira, brasão, armas, uniforme, viaturas e o distintivo" }, "correta": "A" },
-    { "numero": 60, "enunciado": "Sistema Interamericano de Direitos Humanos: marque a correta.", "alternativas": { "A": "Sentenças da Corte são vinculantes e inapeláveis", "B": "Comissão tem apenas competências políticas", "C": "Corte atende petições de Estados, indivíduos ou organizações", "D": "Supervisão de sentenças é competência da Comissão" }, "correta": "A" }
-];
+  let simulados = [];
 
-let bancoDeQuestoes = [];
-const STORAGE_KEY = 'simulado_questoes_v1';
-
-let estadoSimulado = {
-    respostas: {},
-    resultados: {}, 
-    questaoAtual: 1,
-    finalizado: false
-};
-
-// --- Funções de Persistência e Inicialização ---
-
-function carregarQuestoes() {
+  async function fetchSimulados() {
     try {
-        const storedQuestions = localStorage.getItem(STORAGE_KEY);
-        if (storedQuestions) {
-            bancoDeQuestoes = JSON.parse(storedQuestions);
-        } else {
-            bancoDeQuestoes = questoesPadrao;
-            salvarQuestoes();
-        }
-    } catch (e) {
-        console.error("Erro ao carregar questões do localStorage. Usando padrão.", e);
-        bancoDeQuestoes = questoesPadrao;
+      const response = await fetch('simulados.json');
+      simulados = await response.json();
+      renderSimulados();
+    } catch (err) {
+      document.getElementById('simuladosContainer').innerHTML = '<p>Erro ao carregar simulados. Certifique-se de ter um arquivo simulados.json válido.</p>';
     }
-}
+  }
 
-function salvarQuestoes() {
-    bancoDeQuestoes.sort((a, b) => a.numero - b.numero);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(bancoDeQuestoes));
-}
-
-function iniciarSimulado() {
-    carregarQuestoes(); 
-    
-    const questoesValidas = bancoDeQuestoes.filter(q => q.numero);
-
-    if (questoesValidas.length === 0) {
-        document.getElementById('area-questao').innerHTML = '<h2>Não há questões cadastradas. Use o painel Administrador.</h2>';
-        document.getElementById('botoes-questoes').innerHTML = '';
-        estadoSimulado.finalizado = true;
-        return;
+  function renderSimulados() {
+    if(simulados.length === 0) {
+      document.getElementById('simuladosContainer').innerHTML = '<p>Nenhum simulado disponível.</p>';
+      return;
     }
-
-    // Reinicializa o estado
-    estadoSimulado.respostas = {};
-    estadoSimulado.resultados = {}; 
-    estadoSimulado.questaoAtual = questoesValidas[0].numero;
-    estadoSimulado.finalizado = false;
-    
-    // Oculta/Mostra Áreas
-    document.getElementById('area-resultado').style.display = 'none';
-    document.getElementById('area-questao').style.display = 'block';
-    
-    montarBotoesNavegacao();
-    renderizarQuestao(estadoSimulado.questaoAtual);
-}
-
-// --- Funções de Navegação e Simulado ---
-
-function montarBotoesNavegacao() {
-    const container = document.getElementById('botoes-questoes');
+    const container = document.getElementById('simuladosContainer');
     container.innerHTML = '';
-    
-    bancoDeQuestoes.forEach(questao => {
-        const btn = document.createElement('button');
-        btn.textContent = questao.numero;
-        btn.className = 'btn-navegacao';
-        btn.setAttribute('data-numero', questao.numero);
-        btn.onclick = () => renderizarQuestao(questao.numero);
-        container.appendChild(btn);
+
+    simulados.forEach((simulado, index) => {
+      const card = document.createElement('div');
+      card.className = 'simulado-card';
+      card.textContent = simulado.titulo || 'Simulado sem título';
+      card.onclick = () => renderSimuladoDetalhado(simulado, index);
+      container.appendChild(card);
     });
-    atualizarBotoesNavegacao();
-}
+  }
 
-/**
- * Aplica classes de acerto/erro no botão lateral EM TEMPO REAL
- */
-function atualizarBotoesNavegacao() {
-    document.querySelectorAll('#botoes-questoes .btn-navegacao').forEach(btn => {
-        const numero = parseInt(btn.getAttribute('data-numero'));
-        // Remove todas as classes de status de correção
-        btn.classList.remove('respondida', 'atual', 'acertou', 'errou'); 
+  function renderSimuladoDetalhado(simulado, simuladoIndex) {
+    const container = document.getElementById('simuladosContainer');
+    container.innerHTML = '';
 
-        const resultado = estadoSimulado.resultados[numero];
+    const titulo = document.createElement('h2');
+    titulo.textContent = simulado.titulo || 'Simulado sem título';
+    container.appendChild(titulo);
 
-        // Aplica feedback em tempo real (acertou ou errou)
-        if (resultado === 'acerto') {
-            btn.classList.add('acertou');
-        } else if (resultado === 'erro') {
-            btn.classList.add('errou');
-        }
+    simulado.questoes.forEach((q, i) => {
+      const questaoDiv = document.createElement('div');
+      questaoDiv.className = 'questao';
+      questaoDiv.textContent = `${i + 1}. ${q.pergunta}`;
 
-        if (numero === estadoSimulado.questaoAtual) {
-            btn.classList.add('atual');
-        }
-    });
-}
+      const respostasDiv = document.createElement('div');
+      respostasDiv.className = 'respostas';
 
-function renderizarQuestao(numero) {
-    estadoSimulado.questaoAtual = numero;
-    const questao = bancoDeQuestoes.find(q => q.numero === numero);
-    const areaQuestao = document.getElementById('area-questao');
-    const respostaSelecionada = estadoSimulado.respostas[numero];
+      q.alternativas.forEach((alt, idx) => {
+        const respostaLabel = document.createElement('label');
+        respostaLabel.className = 'resposta';
 
-    if (!questao) {
-        areaQuestao.innerHTML = '<p>Questão não encontrada ou removida.</p>';
-        return;
-    }
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = `questao_${i}`;
+        radio.value = idx;
 
-    const questaoIndex = bancoDeQuestoes.findIndex(q => q.numero === numero);
-    const questaoAnterior = questaoIndex > 0 ? bancoDeQuestoes[questaoIndex - 1].numero : null;
-    const proximaQuestao = questaoIndex < bancoDeQuestoes.length - 1 ? bancoDeQuestoes[questaoIndex + 1].numero : null;
+        respostaLabel.appendChild(radio);
+        respostaLabel.appendChild(document.createTextNode(alt));
+        respostasDiv.appendChild(respostaLabel);
+      });
 
-    let html = `<div class="questao-card">
-        <h2>Questão ${questao.numero}</h2>
-        <p>${questao.enunciado}</p>
-        <form id="form-questao-${questao.numero}">`;
-
-    const alternativasArray = Object.entries(questao.alternativas);
-
-    alternativasArray.forEach(([letra, texto]) => {
-        const checked = respostaSelecionada === letra ? 'checked' : '';
-        let classeCorrecao = '';
-        let disabled = '';
-
-        if (estadoSimulado.finalizado) {
-            disabled = 'disabled';
-            // Se finalizado, destaca a correta e a errada (se for a selecionada)
-            if (letra === questao.correta) {
-                classeCorrecao = 'correta'; // Verde
-            } else if (letra === respostaSelecionada && letra !== questao.correta) {
-                classeCorrecao = 'errada'; // Vermelho
-            }
-        }
-        
-        html += `<label class="alternativa-item ${classeCorrecao}">
-            <input type="radio" name="resposta" value="${letra}" ${checked} ${disabled}
-                   onclick="responderQuestao(${questao.numero}, '${letra}')">
-            ${letra}) ${texto}
-        </label>`;
+      container.appendChild(questaoDiv);
+      container.appendChild(respostasDiv);
     });
 
-    html += `</form>
-        <div class="rodape-questao">
-            <button class="btn-acao" onclick="navegar(${questaoAnterior})" ${!questaoAnterior ? 'disabled' : ''}>&lt; Anterior</button>
-            <button class="btn-acao" onclick="navegar(${proximaQuestao})" ${!proximaQuestao ? 'disabled' : ''}>Próxima &gt;</button>
-        </div>
-    </div>`;
+    const btnResultado = document.createElement('button');
+    btnResultado.textContent = 'Ver Resultado';
+    btnResultado.className = 'btn';
+    btnResultado.onclick = () => calcularResultado(simulado);
+    container.appendChild(btnResultado);
 
-    areaQuestao.innerHTML = html;
-    atualizarBotoesNavegacao();
-}
+    const resultadoDiv = document.createElement('div');
+    resultadoDiv.id = 'resultado';
+    resultadoDiv.className = 'resultado';
+    container.appendChild(resultadoDiv);
+  }
 
-/**
- * Calcula e armazena o acerto/erro IMEDIATAMENTE após a resposta.
- */
-function responderQuestao(numero, alternativa) {
-    if (estadoSimulado.finalizado) return;
-    
-    estadoSimulado.respostas[numero] = alternativa;
-    
-    const questao = bancoDeQuestoes.find(q => q.numero === numero);
-    if (questao) {
-        if (alternativa === questao.correta) {
-            estadoSimulado.resultados[numero] = 'acerto'; 
-        } else {
-            estadoSimulado.resultados[numero] = 'erro'; 
-        }
-    }
-
-    atualizarBotoesNavegacao();
-}
-
-function navegar(numero) {
-    if (numero) {
-        renderizarQuestao(numero);
-    }
-}
-
-function reiniciarSimulado() {
-    if (confirm('Tem certeza que deseja REINICIAR o simulado? Todas as respostas serão perdidas e o simulado será reaberto.')) {
-        iniciarSimulado();
-        alert('Simulado reiniciado com sucesso! Boa prova.');
-    }
-}
-
-/**
- * Salva o resultado final e exibe o painel de resultados.
- */
-function finalizarSimulado() {
-    const respondidas = Object.keys(estadoSimulado.respostas).length;
-    const naoRespondidas = bancoDeQuestoes.length - respondidas;
-
-    if (naoRespondidas > 0) {
-        if (!confirm(`Você deixou ${naoRespondidas} questão(ões) sem resposta. Deseja finalizar mesmo assim?`)) {
-            return;
-        }
-    }
-
-    estadoSimulado.finalizado = true;
-    calcularResultado();
-}
-
-/**
- * Recalcula o resultado para a tela final, garantindo que
- * todas as questões (respondidas e não respondidas) sejam consideradas.
- */
-function calcularResultado() {
+  function calcularResultado(simulado) {
     let acertos = 0;
-    
-    const totalQuestoes = bancoDeQuestoes.length;
-    estadoSimulado.resultados = {}; 
-    
-    if (totalQuestoes === 0) {
-        document.getElementById('area-questao').style.display = 'none';
-        document.getElementById('area-resultado').innerHTML = '<h2>Não há questões para calcular o resultado.</h2>';
-        document.getElementById('area-resultado').style.display = 'block';
-        return;
-    }
-
-
-    bancoDeQuestoes.forEach(questao => {
-        const respostaDada = estadoSimulado.respostas[questao.numero];
-
-        if (respostaDada === questao.correta) {
-            acertos++;
-            estadoSimulado.resultados[questao.numero] = 'acerto'; 
-        } else if (respostaDada) {
-            estadoSimulado.resultados[questao.numero] = 'erro'; 
-        } else {
-            estadoSimulado.resultados[questao.numero] = 'nao_respondida'; 
+    simulado.questoes.forEach((q, i) => {
+      const radios = document.getElementsByName(`questao_${i}`);
+      radios.forEach(r => {
+        if(r.checked && parseInt(r.value) === q.respostaCerta) {
+          acertos++;
         }
+      });
     });
+    const total = simulado.questoes.length;
+    const resultadoDiv = document.getElementById('resultado');
+    resultadoDiv.textContent = `Você acertou ${acertos} de ${total} questões. (${((acertos/total)*100).toFixed(2)}%)`;
+  }
 
-    const numRespondidas = Object.keys(estadoSimulado.respostas).length;
-    const resultadoHTML = `
-        <div class="resultado">
-            <h2>Simulado Finalizado!</h2>
-            <p>Total de Questões: <strong>${totalQuestoes}</strong></p>
-            <p class="acerto">Acertos: <strong>${acertos}</strong></p>
-            <p class="erro">Erros: <strong>${numRespondidas - acertos}</strong></p>
-            <p>Questões não respondidas: <strong>${totalQuestoes - numRespondidas}</strong></p>
-            <p>Sua Nota: <strong>${((acertos / totalQuestoes) * 10).toFixed(2)}</strong> (em 10,0)</p>
-            <div style="margin-top: 10px;">
-                <button class="btn-acao btn-reiniciar" onclick="iniciarSimulado()">Fazer Novamente</button>
-                <button class="btn-acao btn-compartilhar" onclick="compartilharResultado()">Compartilhar Resultado</button>
-            </div>
-            <p style="margin-top: 20px;">Clique nos números de navegação ao lado para revisar as questões. **Botões em verde indicam acerto, em vermelho, erro.**</p>
-        </div>
-    `;
-
-    document.getElementById('area-questao').style.display = 'none';
-    const areaResultado = document.getElementById('area-resultado');
-    areaResultado.innerHTML = resultadoHTML;
-    areaResultado.style.display = 'block';
-    
-    renderizarQuestao(estadoSimulado.questaoAtual);
-    atualizarBotoesNavegacao();
-}
-
-/**
- * Adiciona a funcionalidade de compartilhamento nativo para dispositivos móveis (Web Share API).
- */
-function compartilharResultado() {
-    const totalQuestoes = bancoDeQuestoes.length;
-    let acertos = 0;
-    const numRespondidas = Object.keys(estadoSimulado.respostas).length;
-    
-    bancoDeQuestoes.forEach(questao => {
-        if (estadoSimulado.respostas[questao.numero] === questao.correta) {
-            acertos++;
-        }
-    });
-    
-    const nota = ((acertos / totalQuestoes) * 10).toFixed(2);
-    const erros = numRespondidas - acertos;
-    const naoRespondidas = totalQuestoes - numRespondidas;
-
-    const shareText = 
-        `🎯 Resultado Simulado Área Policial 👮
-        
-        Total de Questões: ${totalQuestoes}
-        ✅ Acertos: ${acertos}
-        ❌ Erros: ${erros}
-        ❓ Não respondidas: ${naoRespondidas}
-        ⭐ Nota Final: ${nota} (em 10,0)
-        
-        #PreparatorioPolicial #Simulado`;
-
-    if (navigator.share) {
-        navigator.share({
-            title: 'Resultado do Simulado Preparatório Área Policial',
-            text: shareText
-        })
-        .then(() => console.log('Resultado compartilhado com sucesso!'))
-        .catch((error) => console.error('Erro ao compartilhar:', error));
-    } else {
-        // Fallback para desktop: copiar o texto
-        navigator.clipboard.writeText(shareText)
-            .then(() => alert('Resultado copiado para a área de transferência! Cole onde desejar.'))
-            .catch(err => alert('A API de Compartilhamento não está disponível e a cópia para a área de transferência falhou.'));
-    }
-}
-
-
-// --- Funções do Administrador ---
-
-function mostrarAdmin() {
-    document.getElementById('area-simulado').style.display = 'none';
-    document.getElementById('painel-administrador').style.display = 'block';
-    document.getElementById('navegacao-simulado').style.display = 'none';
-    document.getElementById('titulo-principal').textContent = 'PREPARATÓRIO ÁREA POLICIAL - ADMINISTRADOR';
-    renderizarListaAdmin();
-}
-
-function mostrarSimulado() {
-    document.getElementById('area-simulado').style.display = 'block';
-    document.getElementById('painel-administrador').style.display = 'none';
-    document.getElementById('navegacao-simulado').style.display = 'block';
-    document.getElementById('titulo-principal').textContent = 'PREPARATÓRIO ÁREA POLICIAL';
-    iniciarSimulado();
-}
-
-function carregarQuestoesJSON() {
-    const jsonInput = document.getElementById('json-input').value.trim();
-    if (!jsonInput) {
-        alert('Por favor, insira o JSON das questões.');
-        return;
-    }
-
-    try {
-        const novasQuestoes = JSON.parse(jsonInput);
-
-        if (!Array.isArray(novasQuestoes)) {
-            alert('O JSON deve ser um Array de questões ([...]).');
-            return;
-        }
-
-        let questoesAdicionadas = 0;
-        let proximoNumero = (bancoDeQuestoes.length > 0) ? Math.max(...bancoDeQuestoes.map(q => q.numero)) + 1 : 1;
-
-        novasQuestoes.forEach(novaQuestao => {
-            if (novaQuestao.enunciado && novaQuestao.alternativas && novaQuestao.correta) {
-                if (!novaQuestao.numero || bancoDeQuestoes.some(q => q.numero === novaQuestao.numero)) {
-                    novaQuestao.numero = proximoNumero;
-                }
-                
-                bancoDeQuestoes.push(novaQuestao);
-                questoesAdicionadas++;
-                proximoNumero++;
-            }
-        });
-        
-        salvarQuestoes();
-        document.getElementById('json-input').value = '';
-        renderizarListaAdmin();
-        alert(`${questoesAdicionadas} questão(ões) adicionada(s) com sucesso!`);
-
-    } catch (e) {
-        alert('Erro ao processar o JSON. Verifique a sintaxe.');
-        console.error(e);
-    }
-}
-
-function deletarQuestao(numero) {
-    if (confirm(`Tem certeza que deseja excluir a Questão ${numero}?`)) {
-        bancoDeQuestoes = bancoDeQuestoes.filter(q => q.numero !== numero);
-        salvarQuestoes();
-        renderizarListaAdmin();
-        alert(`Questão ${numero} excluída.`);
-    }
-}
-
-function deletarTodasQuestoes() {
-    if (confirm('ATENÇÃO: Tem certeza que deseja excluir TODAS as questões? Esta ação é irreversível.')) {
-        bancoDeQuestoes = [];
-        salvarQuestoes();
-        renderizarListaAdmin();
-        alert('Todas as questões foram excluídas.');
-    }
-}
-
-function renderizarListaAdmin() {
-    const listaContainer = document.getElementById('lista-admin');
-    listaContainer.innerHTML = '';
-    
-    document.getElementById('count-questoes').textContent = bancoDeQuestoes.length;
-
-    if (bancoDeQuestoes.length === 0) {
-        listaContainer.innerHTML = '<p>Nenhuma questão cadastrada.</p>';
-        return;
-    }
-
-    bancoDeQuestoes.forEach(questao => {
-        const item = document.createElement('div');
-        item.className = 'admin-list-item';
-        item.innerHTML = `
-            <span>Q${questao.numero}: ${questao.enunciado.substring(0, 70)}... (Correta: ${questao.correta})</span>
-            <button class="btn-deletar-individual" onclick="deletarQuestao(${questao.numero})">Excluir</button>
-        `;
-        listaContainer.appendChild(item);
-    });
-}
-
-
-// --- Inicialização ao Carregar a Página ---
-window.onload = iniciarSimulado;
-</script>
-
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('sw.js').then(function(reg) {
-      // Registration successful
-      console.log('ServiceWorker registrado.', reg);
-    }).catch(function(err) {
-      console.log('Falha ao registrar serviceWorker:', err);
-    });
+  // Admin panel toggle
+  document.getElementById('btnAdmin').addEventListener('click', () => {
+    const panel = document.getElementById('adminPanel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
   });
-}
-</script>
 
+  // Inserir simulado JSON
+  document.getElementById('btnInserirSimulado').addEventListener('click', () => {
+    try {
+      const novoSimulado = JSON.parse(document.getElementById('jsonInput').value);
+      simulados.push(novoSimulado);
+      renderSimulados();
+      alert('Simulado inserido com sucesso!');
+      document.getElementById('jsonInput').value = '';
+    } catch (e) {
+      alert('JSON inválido. Corrija e tente novamente.');
+    }
+  });
+
+  // Upload PDF (mock para demo)
+  document.getElementById('btnUploadPDF').addEventListener('click', () => {
+    const pdfInput = document.getElementById('pdfInput');
+    if(pdfInput.files.length === 0) {
+      alert('Selecione ao menos um arquivo PDF.');
+      return;
+    }
+    alert(`Enviados ${pdfInput.files.length} PDFs (demo, sem upload real).`);
+    pdfInput.value = '';
+  });
+
+  // Converter texto para JSON
+  document.getElementById('btnConverterTexto').addEventListener('click', () => {
+    const texto = document.getElementById('textSimulado').value;
+    // Exemplo simples de parse de texto para JSON (formato básico esperado)
+    const linhas = texto.split('
+').filter(l => l.trim());
+    const titulo = linhas[0] || 'Sem título';
+    const questoes = [];
+
+    for(let i=1; i<linhas.length; i++) {
+      const parts = linhas[i].split('|').map(s => s.trim());
+      if(parts.length < 4) continue;
+      const pergunta = parts[0];
+      const alternativas = parts.slice(1, parts.length - 1);
+      const respostaCerta = parseInt(parts[parts.length - 1]);
+      if(isNaN(respostaCerta) || respostaCerta >= alternativas.length) continue;
+      questoes.push({ pergunta, alternativas, respostaCerta });
+    }
+
+    const jsonSimulado = { titulo, questoes };
+    document.getElementById('jsonOutput').textContent = JSON.stringify(jsonSimulado, null, 2);
+  });
+
+  fetchSimulados();
+</script>
 </body>
 </html>
